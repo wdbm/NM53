@@ -4,9 +4,7 @@ create and update backups of GitHub repositories of a user
 
 # setup
 
-```Python
-pip install NM53
-```
+Download the script `NM`.
 
 # usage
 

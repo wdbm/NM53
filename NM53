@@ -43,7 +43,7 @@ options:
 """
 
 name    = "NM53"
-version = "2017-04-10T1851Z"
+version = "2017-04-10T1855Z"
 
 import docopt
 import json
