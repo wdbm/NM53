@@ -4,7 +4,7 @@ create and update backups of GitHub repositories of a user
 
 # setup
 
-Download the script `NM`.
+Download the script `NM53`.
 
 # usage
 
