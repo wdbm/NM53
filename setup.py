@@ -9,7 +9,7 @@ def main():
 
     setuptools.setup(
         name             = "NM53",
-        version          = "2017.04.10.1818",
+        version          = "2017.04.10.1824",
         description      = "create and update backups of GitHub repositories of a user",
         long_description = long_description(),
         url              = "https://github.com/wdbm/NM53",

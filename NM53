@@ -43,7 +43,7 @@ options:
 """
 
 name    = "NM53"
-version = "2017-04-10T1818Z"
+version = "2017-04-10T1824Z"
 
 import docopt
 import json
@@ -67,9 +67,6 @@ def main(options):
     response              = urllib2.urlopen(URL)
     HTML                  = response.read()
     JSON                  = json.loads(HTML)
-
-    repository_names      = []
-    repository_clone_URLs = []
 
     for repository in JSON:
 
