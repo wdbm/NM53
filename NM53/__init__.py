@@ -44,14 +44,17 @@ options:
 """
 
 name        = "NM53"
-__version__ = "2019-01-30T1909Z"
+__version__ = "2019-01-30T1922Z"
 
 import docopt
 import json
 import os
 import subprocess
 import sys
-import urllib2
+try:
+    from urllib.request import urlopen
+except:
+    from urllib2 import urlopen
 
 def main():
     options               = docopt.docopt(__doc__, version=__version__)
@@ -63,8 +66,8 @@ def main():
         print(__doc__)
         print("no user specified")
         sys.exit()
-    response              = urllib2.urlopen(URL)
-    HTML                  = response.read()
+    response              = urlopen(URL)
+    HTML                  = response.read().decode("utf-8")
     JSON                  = json.loads(HTML)
     commands = ""
     for repository in JSON:
