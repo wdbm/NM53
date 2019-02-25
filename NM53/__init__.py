@@ -36,15 +36,16 @@ usage:
     program [options]
 
 options:
-    -h, --help                    display help message
-    --version                     display version and exit
-    --user=TEXT                   GitHub username
-    --parallel=BOOL               run git subprocesses in parallel       [default: false]
-    --display_commands_only=BOOL  display commands only, do not execute  [default: true]
+    -h, --help                                        display help message
+    --version                                         display version and exit
+    --user=TEXT                                       GitHub username
+    --parallel=BOOL                                   run git subprocesses in parallel       [default: false]
+    --display_commands_only=BOOL                      display commands only, do not execute  [default: true]
+    --update_only_currently_cloned_repositories=BOOL                                         [default: true]
 """
 
 name        = "NM53"
-__version__ = "2019-01-30T1922Z"
+__version__ = "2019-02-25T1354Z"
 
 import docopt
 import json
@@ -57,11 +58,12 @@ except:
     from urllib2 import urlopen
 
 def main():
-    options               = docopt.docopt(__doc__, version=__version__)
-    user                  = options["--user"]
-    parallel              = options["--parallel"].lower() == "true"
-    display_commands_only = options["--display_commands_only"].lower() == "true"
-    URL                   = "https://api.github.com/users/{user}/repos?page=1&per_page=1000".format(user = user)
+    options                                   = docopt.docopt(__doc__, version=__version__)
+    user                                      = options["--user"]
+    parallel                                  = options["--parallel"].lower() == "true"
+    display_commands_only                     = options["--display_commands_only"].lower() == "true"
+    update_only_currently_cloned_repositories = options["--update_only_currently_cloned_repositories"].lower() == "true"
+    URL                                       = "https://api.github.com/users/{user}/repos?page=1&per_page=1000".format(user = user)
     if user is None:
         print(__doc__)
         print("no user specified")
@@ -69,12 +71,13 @@ def main():
     response              = urlopen(URL)
     HTML                  = response.read().decode("utf-8")
     JSON                  = json.loads(HTML)
+    command  = ""
     commands = ""
     for repository in JSON:
         if os.path.isdir(repository["name"]):
             print("repository {name} local copy found -- pull".format(name=repository["name"]))
             command = "cd {directory}; git pull; cd ..".format(directory=repository["name"])
-        else:
+        elif not update_only_currently_cloned_repositories:
             print("repository {name} local copy not found -- clone".format(name=repository["name"]))
             command = "git clone {URL}".format(URL = repository["clone_url"])
         if not display_commands_only:
@@ -86,8 +89,7 @@ def main():
             )
             if not parallel:
                 process.wait()
-        else:
-            commands = commands + "\n" + command
+        commands = commands + "\n" + command
     if display_commands_only:
         print(commands)
         print("\nNote: This program by default only lists commands, but can execute them. See --help for documentation on this.")
