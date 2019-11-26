@@ -7,7 +7,7 @@ import setuptools
 def main():
     setuptools.setup(
         name                 = "NM53",
-        version              = "2019.02.25.1354",
+        version              = "2019.11.26.1716",
         description          = "create and update backups of GitHub repositories of a user",
         long_description     = long_description(),
         url                  = "https://github.com/wdbm/NM53",

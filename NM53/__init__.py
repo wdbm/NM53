@@ -42,10 +42,11 @@ options:
     --parallel=BOOL                                   run git subprocesses in parallel       [default: false]
     --display_commands_only=BOOL                      display commands only, do not execute  [default: true]
     --update_only_currently_cloned_repositories=BOOL                                         [default: true]
+    --number_of_pages=INT                             the number of pages to go through      [default: 5]
 """
 
 name        = "NM53"
-__version__ = "2019-02-25T1354Z"
+__version__ = "2019-11-26T1716Z"
 
 import docopt
 import json
@@ -63,36 +64,38 @@ def main():
     parallel                                  = options["--parallel"].lower() == "true"
     display_commands_only                     = options["--display_commands_only"].lower() == "true"
     update_only_currently_cloned_repositories = options["--update_only_currently_cloned_repositories"].lower() == "true"
-    URL                                       = "https://api.github.com/users/{user}/repos?page=1&per_page=1000".format(user = user)
+    number_of_pages                           = int(options["--number_of_pages"])
     if user is None:
         print(__doc__)
         print("no user specified")
-        sys.exit()
-    response              = urlopen(URL)
-    HTML                  = response.read().decode("utf-8")
-    JSON                  = json.loads(HTML)
-    command  = ""
-    commands = ""
-    for repository in JSON:
-        if os.path.isdir(repository["name"]):
-            print("repository {name} local copy found -- pull".format(name=repository["name"]))
-            command = "cd {directory}; git pull; cd ..".format(directory=repository["name"])
-        elif not update_only_currently_cloned_repositories:
-            print("repository {name} local copy not found -- clone".format(name=repository["name"]))
-            command = "git clone {URL}".format(URL = repository["clone_url"])
-        if not display_commands_only:
-            process = subprocess.Popen(
-                [command],
-                shell      = True,
-                executable = "/bin/bash",
-                stdout     = subprocess.PIPE
-            )
-            if not parallel:
-                process.wait()
-        commands = commands + "\n" + command
-    if display_commands_only:
-        print(commands)
-        print("\nNote: This program by default only lists commands, but can execute them. See --help for documentation on this.")
+    for page_number in list(range(1, number_of_pages)):
+        URL      = "https://api.github.com/users/{user}/repos?page={page_number}&per_page=1000".format(user=user, page_number=page_number)
+        response = urlopen(URL)
+        HTML     = response.read().decode("utf-8")
+        JSON     = json.loads(HTML)
+        command  = ""
+        commands = ""
+        for repository in JSON:
+            print(repository['name'])
+            if os.path.isdir(repository["name"]):
+                print("repository {name} local copy found -- pull".format(name=repository["name"]))
+                command = "cd {directory}; git pull; cd ..".format(directory=repository["name"])
+            elif not update_only_currently_cloned_repositories:
+                print("repository {name} local copy not found -- clone".format(name=repository["name"]))
+                command = "git clone {URL}".format(URL = repository["clone_url"])
+            if not display_commands_only:
+                process = subprocess.Popen(
+                    [command],
+                    shell      = True,
+                    executable = "/bin/bash",
+                    stdout     = subprocess.PIPE
+                )
+                if not parallel:
+                    process.wait()
+            commands = commands + "\n" + command
+        if display_commands_only:
+            print(commands)
+            print("\nNote: This program by default only lists commands, but can execute them. See --help for documentation on this.")
 
 if __name__ == "__main__":
     main()
